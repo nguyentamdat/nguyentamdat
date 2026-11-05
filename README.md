@@ -39,6 +39,16 @@
 
 ## Dự án nổi bật
 
+### VietQR
+
+Tạo và kiểm tra mã VietQR ngay trong trình duyệt bằng Rust + WebAssembly, không gửi dữ liệu tài khoản lên máy chủ. Sử dụng thư viện Rust mã nguồn mở (sắp phát hành).
+
+[**Dùng thử VietQR →**](https://nguyentamdat.github.io/nguyentamdat/vietqr/)
+
+<img src="assets/vietqr-sample.svg" alt="QR demo VietQR với số tài khoản giả 0000000000" width="240" height="240">
+
+*QR mẫu dùng tài khoản giả `0000000000`, ngân hàng `970436`, số tiền `50.000 VND`, nội dung `Demo VietQR`. Chỉ để minh họa, không chuyển tiền; luôn kiểm tra bằng ứng dụng ngân hàng.*
+
 | Dự án | Mô tả | Công nghệ |
 |---|---|---|
 | **Project 01** | Website giới thiệu sản phẩm với giao diện responsive, tối ưu trải nghiệm người dùng. | HTML, CSS, JavaScript |
