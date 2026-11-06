@@ -41,7 +41,7 @@
 
 ### VietQR
 
-Tạo và kiểm tra mã VietQR ngay trong trình duyệt bằng Rust + WebAssembly, không gửi dữ liệu tài khoản lên máy chủ. Mã nguồn: [nguyentamdat/vietqr](https://github.com/nguyentamdat/vietqr) · crates: [vietqr-core](https://crates.io/crates/vietqr-core), [vietqr-render](https://crates.io/crates/vietqr-render), [vietqr-wasm](https://crates.io/crates/vietqr-wasm).
+Tạo và kiểm tra mã VietQR ngay trong trình duyệt bằng Rust + WebAssembly, không gửi dữ liệu tài khoản lên máy chủ. Mã nguồn: [nguyentamdat/vietqr](https://github.com/nguyentamdat/vietqr) · crates: [vietqr-core](https://crates.io/crates/vietqr-core), [vietqr-render](https://crates.io/crates/vietqr-render), [vietqr-wasm](https://crates.io/crates/vietqr-wasm) · npm: [vietqr-wasm](https://www.npmjs.com/package/vietqr-wasm).
 
 [**Dùng thử VietQR →**](https://nguyentamdat.github.io/nguyentamdat/vietqr/)
 
