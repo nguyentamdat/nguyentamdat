@@ -3,77 +3,114 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Tạo và kiểm tra VietQR cục bộ trong trình duyệt với Rust và WebAssembly.">
-  <title>VietQR · Demo Rust + WebAssembly</title>
+  <meta name="description" content="Trải nghiệm thư viện VietQR Rust + WebAssembly: tạo QR và kiểm tra payload ngay trong trình duyệt, không gửi dữ liệu đến máy chủ.">
+  <meta name="color-scheme" content="light dark">
+  <title>VietQR · Không gian thử nghiệm Rust + WASM</title>
   <link rel="icon" href="data:,">
+  <link rel="preload" href="./fonts/BeVietnamPro-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="./style.css">
   <script type="module" src="./app.js"></script>
 </head>
 <body>
-<main>
-  <a href="https://github.com/nguyentamdat/nguyentamdat#dự-án-nổi-bật">← Về GitHub profile</a>
-  <h1>VietQR · Demo Rust + WebAssembly</h1>
-  <p>Tạo và kiểm tra VietQR ngay trong trình duyệt. Không gửi dữ liệu tài khoản hay payload đến máy chủ.</p>
-  <p class="notice">Chỉ là bản demo, không phải dịch vụ thanh toán. Hãy kiểm tra người nhận, số tiền và nội dung bằng ứng dụng ngân hàng trước khi chuyển tiền. CRC đúng không xác minh chủ tài khoản hay chứng minh đã thanh toán.</p>
-  <p class="hint">Sử dụng thư viện Rust mã nguồn mở <a href="https://github.com/nguyentamdat/vietqr">nguyentamdat/vietqr</a> (crate <a href="https://crates.io/crates/vietqr-core">vietqr-core</a>, npm <a href="https://www.npmjs.com/package/vietqr-wasm">vietqr-wasm</a>). Danh sách ngân hàng là bản chụp ngoại tuyến; chế độ strict không đồng nghĩa với chứng nhận EMVCo/NAPAS.</p>
-  <p id="load-status" role="status">Đang tải WASM…</p>
-  <noscript>Vui lòng bật JavaScript để sử dụng demo WASM.</noscript>
+<a class="skip-link" href="#generate-heading">Đến công cụ tạo QR</a>
+<header class="site-header wrap">
+  <a class="brand" href="./" aria-label="VietQR demo, trang đầu">
+    <svg viewBox="0 0 32 32" width="32" height="32" fill="none" aria-hidden="true"><path d="M2 2h10v10H2zm18 0h10v10H20zM2 20h10v10H2z" stroke="currentColor" stroke-width="3"/><path d="M20 19h5v5h5v6H19v-5h-4v-6z" fill="currentColor"/></svg>
+    VietQR<span class="brand-note">demo</span>
+  </a>
+  <nav aria-label="Điều hướng chính">
+    <a href="#generate-heading">Tạo QR</a>
+    <a href="#check-heading">Kiểm tra</a>
+    <a class="source-link" href="https://github.com/nguyentamdat/vietqr">Mã nguồn</a>
+  </nav>
+</header>
+<main class="wrap">
+  <section class="intro" aria-labelledby="intro-heading">
+    <div>
+      <h1 id="intro-heading">Một mã QR.<br>Ngay trong trình duyệt.</h1>
+      <p>Tạo VietQR, đọc payload, kiểm tra CRC.<br class="desktop-break"> Dữ liệu của bạn ở lại trên thiết bị của bạn.</p>
+    </div>
+    <div class="library">
+      <p>Rust + WebAssembly<br><span>Mã nguồn mở. Cùng khám phá.</span></p>
+      <div class="package-links"><a href="https://crates.io/crates/vietqr-core">vietqr-core <span>crates.io</span></a><a href="https://www.npmjs.com/package/vietqr-wasm">vietqr-wasm <span>npm</span></a></div>
+    </div>
+  </section>
 
-  <section aria-labelledby="generate-heading">
-    <h2 id="generate-heading">1. Tạo QR</h2>
-    <form id="generate-form" class="grid" novalidate>
-      <label>Ngân hàng
-        <select name="bank" id="bank" disabled required></select>
-      </label>
-      <label>Loại tài khoản
-        <select name="service"><option value="account">Tài khoản ngân hàng</option><option value="card">Số thẻ</option></select>
-      </label>
-      <label>Số tài khoản / thẻ
-        <input name="account" required autocomplete="off" spellcheck="false" placeholder="Ví dụ giả: 0000000000">
-      </label>
-      <label>Tên người nhận (tùy chọn)
-        <input name="name" autocomplete="off">
-      </label>
-      <label>Số tiền VND (tùy chọn)
-        <input name="amount" inputmode="numeric" placeholder="Ví dụ: 50000" autocomplete="off">
-      </label>
-      <label>Chế độ
-        <select name="profile"><option value="npm">npm-compatible (mặc định)</option><option value="strict">Chuẩn EMVCo strict</option></select>
-      </label>
-      <label class="wide">Nội dung chuyển khoản (tùy chọn)
-        <input name="memo" autocomplete="off">
-        <span class="hint">Tên/nội dung được bỏ dấu tiếng Việt; giới hạn 50 ký tự (npm), 25 (strict).</span>
-      </label>
-      <div class="wide"><button id="generate-button" disabled>Tạo QR</button></div>
-    </form>
-    <p id="generation-error" role="alert" class="error"></p>
-    <div id="result" hidden>
-      <img id="qr-image" alt="Mã QR chuyển khoản demo" width="320" height="320">
-      <label>Payload đã tạo
-        <textarea id="generated-payload" readonly rows="5" spellcheck="false"></textarea>
-      </label>
-      <div class="actions">
-        <button type="button" id="copy">Sao chép payload</button>
-        <a id="download" class="button" download="vietqr-demo.svg">Tải SVG</a>
+  <div class="runtime-bar"><p id="load-status" role="status">Đang tải WASM…</p><span>Không API · Không gửi dữ liệu nhập</span></div>
+  <noscript><p class="error">Vui lòng bật JavaScript để sử dụng demo WASM.</p></noscript>
+
+  <section class="workbench" aria-labelledby="generate-heading">
+    <div class="editor">
+      <div class="section-heading"><h2 id="generate-heading" tabindex="-1">Tạo mã của bạn</h2><span>VietQR / SVG</span></div>
+      <p class="section-description">Nhập thông tin bên dưới để tạo mã QR chuyển khoản.</p>
+      <form id="generate-form" class="form-grid" novalidate>
+        <label class="wide" for="bank">Ngân hàng
+          <select name="bank" id="bank" disabled required></select>
+        </label>
+        <label class="wide">Chuyển đến
+          <select name="service"><option value="account">Tài khoản ngân hàng</option><option value="card">Số thẻ</option></select>
+        </label>
+        <label>Số tài khoản / thẻ <span class="required-note">bắt buộc</span>
+          <input name="account" required autocomplete="off" spellcheck="false" placeholder="Ví dụ giả: 0000000000" aria-describedby="generation-error">
+        </label>
+        <label>Tên người nhận <span class="optional">tùy chọn</span>
+          <input name="name" autocomplete="off" placeholder="Ví dụ: Nguyễn Văn A" aria-describedby="text-hint">
+        </label>
+        <label class="wide">Số tiền <span class="optional">tùy chọn · VND</span>
+          <input name="amount" inputmode="numeric" placeholder="Ví dụ: 50000" autocomplete="off" aria-describedby="amount-hint generation-error">
+          <span id="amount-hint" class="hint">Để trống nếu muốn người chuyển tự nhập số tiền.</span>
+        </label>
+        <label class="wide">Nội dung chuyển khoản <span class="optional">tùy chọn</span>
+          <input name="memo" autocomplete="off" placeholder="Ví dụ: Dong tien an" aria-describedby="text-hint generation-error">
+        </label>
+        <label class="wide">Chế độ tạo mã
+          <select name="profile"><option value="npm">npm-compatible (mặc định)</option><option value="strict">EMVCo strict</option></select>
+          <span id="text-hint" class="hint">Tên và nội dung được bỏ dấu tiếng Việt. Tối đa 50 ký tự ở chế độ npm, 25 ở strict.</span>
+        </label>
+        <p id="generation-error" role="alert" class="error wide" tabindex="-1"></p>
+        <div class="submit-row wide"><button id="generate-button" disabled>Tạo mã QR</button><span>Xử lý bằng WASM trên thiết bị</span></div>
+      </form>
+    </div>
+    <aside class="preview" aria-label="Kết quả tạo QR">
+      <div id="empty-result">
+        <h3>Từ dữ liệu đến mã QR.</h3>
+        <p class="preview-description">Một ảnh SVG, sẵn sàng để lưu.</p>
+        <div class="qr-sheet sample"><img src="../assets/vietqr-sample.svg" alt="QR mẫu minh họa với tài khoản giả 0000000000, không dùng để chuyển tiền" width="320" height="320"></div>
+        <p class="sample-caption">Mẫu minh họa · tài khoản giả</p>
+        <p class="empty-help">Mã của bạn sẽ xuất hiện tại đây<br>sau khi bấm <strong>Tạo mã QR</strong>.</p>
       </div>
-      <p id="copy-status" role="status"></p>
+      <div id="result" hidden>
+        <h3>Mã QR đã được tạo.</h3>
+        <p class="preview-description">Kiểm tra thông tin trong ứng dụng ngân hàng trước khi chuyển tiền.</p>
+        <div class="qr-sheet"><img id="qr-image" alt="Mã QR chuyển khoản vừa tạo" width="320" height="320" src="../assets/vietqr-sample.svg"></div>
+        <div class="actions"><a id="download" class="button secondary" download="vietqr-demo.svg">Tải ảnh SVG</a><button type="button" id="use-payload" class="text-button">Kiểm tra mã này</button></div>
+        <label class="payload-label" for="generated-payload">Payload đã tạo</label>
+        <textarea id="generated-payload" readonly rows="4" spellcheck="false"></textarea>
+        <div class="copy-row"><button type="button" id="copy" class="text-button">Sao chép payload</button><p id="copy-status" role="status"></p></div>
+        <p class="hint">Thay đổi thông tin? Bấm Tạo mã QR để cập nhật.</p>
+      </div>
+      <p class="privacy-note"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v3" stroke="currentColor" stroke-width="1.5"/></svg>Không gửi thông tin tài khoản đến máy chủ.</p>
+    </aside>
+  </section>
+
+  <section class="checker" aria-labelledby="check-heading">
+    <div class="checker-intro"><h2 id="check-heading">Bên trong một mã QR.</h2><p>Dán chuỗi payload để đọc các trường dữ liệu và kiểm tra tính toàn vẹn bằng CRC.</p><p class="hint">CRC hợp lệ không xác minh chủ tài khoản và không chứng minh đã thanh toán.</p></div>
+    <div class="checker-tool">
+      <form id="check-form" novalidate>
+        <label for="check-payload">Payload VietQR</label>
+        <textarea id="check-payload" required rows="5" spellcheck="false" placeholder="Dán chuỗi bắt đầu bằng 000201…" aria-describedby="check-error"></textarea>
+        <button id="check-button" class="secondary" disabled>Kiểm tra payload</button>
+      </form>
+      <p id="check-error" role="alert" class="error" tabindex="-1"></p>
+      <div id="checked-result" hidden>
+        <p role="status" class="success">CRC hợp lệ <span>Payload không bị sai lệch theo phép kiểm tra CRC.</span></p>
+        <dl id="parsed-fields" class="parsed-fields"></dl>
+      </div>
     </div>
   </section>
 
-  <section aria-labelledby="check-heading">
-    <h2 id="check-heading">2. Kiểm tra QR</h2>
-    <form id="check-form" novalidate>
-      <label>Dán payload VietQR
-        <textarea id="check-payload" required rows="5" spellcheck="false"></textarea>
-      </label>
-      <button id="check-button" disabled>Kiểm tra payload</button>
-    </form>
-    <p id="check-error" role="alert" class="error"></p>
-    <div id="checked-result" hidden>
-      <p role="status" class="success">CRC hợp lệ</p>
-      <dl id="parsed-fields" class="grid"></dl>
-    </div>
-  </section>
+  <aside class="disclaimer" aria-labelledby="disclaimer-heading"><h2 id="disclaimer-heading">Thử nghiệm thư viện, không phải dịch vụ thanh toán.</h2><p>Demo không thực hiện giao dịch. Luôn kiểm tra người nhận, số tiền và nội dung bằng ứng dụng ngân hàng trước khi chuyển tiền. Danh sách ngân hàng là bản chụp ngoại tuyến; chế độ strict không đồng nghĩa với chứng nhận EMVCo/NAPAS.</p></aside>
 </main>
+<footer class="wrap site-footer"><p>Một demo cho cộng đồng · <a href="https://github.com/nguyentamdat/vietqr">nguyentamdat/vietqr</a></p><a href="https://github.com/nguyentamdat/nguyentamdat#dự-án-nổi-bật">Về GitHub profile</a></footer>
 </body>
 </html>

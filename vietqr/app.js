@@ -26,7 +26,9 @@ try {
   ready = true;
   for (const id of ["bank", "generate-button", "check-button"]) $(id).disabled = false;
   $("load-status").textContent = "WASM đã sẵn sàng · xử lý cục bộ";
+  $("load-status").dataset.state = "ready";
 } catch {
+  $("load-status").dataset.state = "error";
   $("load-status").textContent = "Không tải được WASM. Hãy tải lại trang và kiểm tra kết nối.";
 }
 
@@ -35,6 +37,7 @@ $("generate-form").addEventListener("submit", (event) => {
   if (!ready) return;
   $("generation-error").textContent = "";
   $("result").hidden = true;
+  $("empty-result").hidden = false;
   $("copy-status").textContent = "";
   const data = new FormData(event.currentTarget);
   const amount = data.get("amount").trim();
@@ -56,8 +59,11 @@ $("generate-form").addEventListener("submit", (event) => {
     $("download").href = image;
     $("generated-payload").value = payload;
     $("result").hidden = false;
+    $("empty-result").hidden = true;
+    $("result").scrollIntoView({ block: "nearest" });
   } catch (error) {
     $("generation-error").textContent = validationMessage(error);
+    $("generation-error").focus();
   }
 });
 
@@ -70,6 +76,12 @@ $("copy").addEventListener("click", async () => {
   }
 });
 
+$("use-payload").addEventListener("click", () => {
+  $("check-payload").value = $("generated-payload").value;
+  $("checked-result").hidden = true;
+  $("check-error").textContent = "";
+  $("check-payload").focus();
+});
 $("check-payload").addEventListener("input", () => {
   $("checked-result").hidden = true;
   $("check-error").textContent = "";
@@ -107,5 +119,6 @@ $("check-form").addEventListener("submit", (event) => {
     $("checked-result").hidden = false;
   } catch (error) {
     $("check-error").textContent = validationMessage(error);
+    $("check-error").focus();
   }
 });
